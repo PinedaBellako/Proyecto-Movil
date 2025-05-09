@@ -16,6 +16,17 @@ class _alumnoState extends State<alumno> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController cuentaController = TextEditingController();
 
+  // Lista de clases inscritas (puedes reemplazar esto con datos dinámicos de Firebase)
+  final List<String> clasesInscritas = [
+    'Matemáticas',
+    'Historia',
+    'Ciencias',
+    'Inglés',
+    'Programación',
+  ];
+
+  String? claseSeleccionada; // Clase seleccionada por el alumno
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +53,7 @@ class _alumnoState extends State<alumno> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Encabezado personalizado con nueva tipografía
+                  // Encabezado personalizado
                   Text(
                     'Registro de Asistencia',
                     style: GoogleFonts.poppins(
@@ -51,9 +62,70 @@ class _alumnoState extends State<alumno> {
                     ),
                   ),
                   const SizedBox(height: 40),
+
+                  // Catálogo de clases inscritas
+                  Card(
+                    color: const Color(0xFF2C2C2C), // Fondo gris carbón
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Selecciona tu clase:',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            value: claseSeleccionada,
+                            items: clasesInscritas.map((String clase) {
+                              return DropdownMenuItem<String>(
+                                value: clase,
+                                child: Text(
+                                  clase,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? nuevaClase) {
+                              setState(() {
+                                claseSeleccionada = nuevaClase;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor:
+                                  const Color(0xFF424242), // Gris más claro
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 10,
+                              ),
+                            ),
+                            dropdownColor:
+                                Colors.grey[200], // Fondo del menú desplegable
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
                   // Tarjeta para los campos de texto
                   Card(
-                    color: Colors.white.withOpacity(0.9),
+                    color: const Color(0xFF2C2C2C),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -67,7 +139,7 @@ class _alumnoState extends State<alumno> {
                             'Nombre:',
                             style: GoogleFonts.poppins(
                               fontSize: 18,
-                              color: Colors.black87,
+                              color: const Color.fromARGB(221, 255, 255, 255),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -77,13 +149,13 @@ class _alumnoState extends State<alumno> {
                               hintText: 'Ingresa tu nombre',
                               hintStyle: GoogleFonts.poppins(
                                 fontSize: 16,
-                                color: Colors.grey,
+                                color: const Color.fromARGB(255, 255, 255, 255),
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               filled: true,
-                              fillColor: Colors.grey[200],
+                              fillColor: Color(0xFF424242),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -91,7 +163,7 @@ class _alumnoState extends State<alumno> {
                             'N# de cuenta:',
                             style: GoogleFonts.poppins(
                               fontSize: 18,
-                              color: Colors.black87,
+                              color: const Color.fromARGB(221, 255, 255, 255),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -101,13 +173,13 @@ class _alumnoState extends State<alumno> {
                               hintText: 'Ingresa tu número de cuenta',
                               hintStyle: GoogleFonts.poppins(
                                 fontSize: 16,
-                                color: Colors.grey,
+                                color: const Color.fromARGB(255, 255, 255, 255),
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               filled: true,
-                              fillColor: Colors.grey[200],
+                              fillColor: Color(0xFF424242),
                             ),
                           ),
                         ],
@@ -115,9 +187,19 @@ class _alumnoState extends State<alumno> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  // Botón de escaneo QR en el centro
+
+                  // Botón de escaneo QR
                   ElevatedButton.icon(
                     onPressed: () async {
+                      if (claseSeleccionada == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Por favor, selecciona una clase'),
+                          ),
+                        );
+                        return;
+                      }
+
                       final qrResult = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -127,7 +209,11 @@ class _alumnoState extends State<alumno> {
 
                       if (qrResult != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('QR Escaneado: $qrResult')),
+                          SnackBar(
+                            content: Text(
+                              'Asistencia registrada en $claseSeleccionada: $qrResult',
+                            ),
+                          ),
                         );
 
                         // Aquí puedes procesar los datos del QR
@@ -154,6 +240,7 @@ class _alumnoState extends State<alumno> {
                     ),
                   ),
                   const SizedBox(height: 20),
+
                   // Texto adicional
                   Text(
                     'Escanea el código QR para registrar tu asistencia',

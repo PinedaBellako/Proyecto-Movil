@@ -3,6 +3,7 @@ import 'package:proyecto/Pantallas/alumno.dart';
 import 'package:proyecto/Pantallas/principal.dart';
 import 'package:proyecto/Pantallas/profesor.dart';
 import 'package:proyecto/Pantallas/registrarse.dart';
+import 'package:proyecto/Pantallas/inicio.dart'; // Importa la nueva pantalla
 
 class Navegador extends StatefulWidget {
   const Navegador({super.key});
@@ -33,6 +34,11 @@ class _NavegadorState extends State<Navegador> {
         .add(alumno(title: 'Pase de Lista?', cambiarPantalla: _cambiaPantalla));
     _pantallas
         .add(profesor(title: 'Pasar lista', cambiarPantalla: _cambiaPantalla));
+    _pantallas.add(InicioScreen(
+      nombreUsuario: 'Alumno',
+      esProfesor: false,
+      cambiarPantalla: _cambiaPantalla,
+    )); // Agrega la nueva pantalla
 
     _cuerpo = _pantallas[_p];
   }
@@ -47,24 +53,29 @@ class _NavegadorState extends State<Navegador> {
           onTap: (value) => _cambiaPantalla(value),
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-                label: "principal",
+                label: "Principal",
                 icon: Icon(
-                  Icons.accessibility_sharp,
+                  Icons.home,
                 )),
             BottomNavigationBarItem(
                 label: "Login",
                 icon: Icon(
-                  Icons.accessibility_sharp,
+                  Icons.login,
                 )),
             BottomNavigationBarItem(
                 label: "Alumno",
                 icon: Icon(
-                  Icons.accessibility_sharp,
+                  Icons.school,
                 )),
             BottomNavigationBarItem(
-                label: "Porfesor",
+                label: "Profesor",
                 icon: Icon(
-                  Icons.accessibility_sharp,
+                  Icons.person,
+                )),
+            BottomNavigationBarItem(
+                label: "Inicio", // Nuevo ítem
+                icon: Icon(
+                  Icons.dashboard,
                 )),
           ]),
     );
