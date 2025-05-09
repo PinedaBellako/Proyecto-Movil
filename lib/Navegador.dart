@@ -3,7 +3,9 @@ import 'package:proyecto/Pantallas/alumno.dart';
 import 'package:proyecto/Pantallas/principal.dart';
 import 'package:proyecto/Pantallas/profesor.dart';
 import 'package:proyecto/Pantallas/registrarse.dart';
-import 'package:proyecto/Pantallas/inicio.dart'; // Importa la nueva pantalla
+import 'package:proyecto/Pantallas/inicio.dart';
+import 'package:proyecto/Pantallas/perfil.dart';
+import 'package:proyecto/Pantallas/actividad.dart'; // Importa la pantalla de actividad
 
 class Navegador extends StatefulWidget {
   const Navegador({super.key});
@@ -38,7 +40,13 @@ class _NavegadorState extends State<Navegador> {
       nombreUsuario: 'Alumno',
       esProfesor: false,
       cambiarPantalla: _cambiaPantalla,
-    )); // Agrega la nueva pantalla
+    ));
+    _pantallas.add(PerfilScreen(
+      nombreUsuario: 'KEVIN',
+      correoUsuario: 'kevin@example.com',
+      rolUsuario: 'Profesor',
+    ));
+    _pantallas.add(const ActividadScreen()); // Agrega la pantalla de actividad
 
     _cuerpo = _pantallas[_p];
   }
@@ -51,6 +59,10 @@ class _NavegadorState extends State<Navegador> {
           type: BottomNavigationBarType.fixed,
           currentIndex: _p,
           onTap: (value) => _cambiaPantalla(value),
+          backgroundColor: const Color.fromARGB(255, 15, 20, 15), // Verde medio
+          selectedItemColor:
+              Color.fromARGB(255, 93, 255, 142), // Color del ítem seleccionado
+          unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
                 label: "Principal",
@@ -73,9 +85,19 @@ class _NavegadorState extends State<Navegador> {
                   Icons.person,
                 )),
             BottomNavigationBarItem(
-                label: "Inicio", // Nuevo ítem
+                label: "Inicio",
                 icon: Icon(
                   Icons.dashboard,
+                )),
+            BottomNavigationBarItem(
+                label: "Perfil",
+                icon: Icon(
+                  Icons.account_circle,
+                )),
+            BottomNavigationBarItem(
+                label: "Actividad", // Nuevo ítem
+                icon: Icon(
+                  Icons.calendar_today,
                 )),
           ]),
     );

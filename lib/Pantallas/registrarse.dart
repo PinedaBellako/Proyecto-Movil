@@ -249,6 +249,49 @@ class _registrarseState extends State<registrarse> {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    Text(
+                      'Ingresa tu nombre:',
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: repetirController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: 'Nombre completo',
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     // Checkbox
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -256,7 +299,7 @@ class _registrarseState extends State<registrarse> {
                         Checkbox(
                           value: _eresAlumno,
                           onChanged: preguntaAlumnos,
-                          activeColor: const Color(0xFF00796B),
+                          activeColor: Color.fromARGB(255, 93, 255, 142),
                         ),
                         Text(
                           '¿Eres alumno?',
@@ -280,9 +323,9 @@ class _registrarseState extends State<registrarse> {
                             style: GoogleFonts.poppins(fontSize: 16),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF00796B), // Verde medio
-                            foregroundColor: Colors.white,
+                            backgroundColor: Color.fromARGB(
+                                255, 93, 255, 142), // Verde medio
+                            foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
                               vertical: 15,
@@ -301,9 +344,9 @@ class _registrarseState extends State<registrarse> {
                             style: GoogleFonts.poppins(fontSize: 16),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF00796B), // Verde medio
-                            foregroundColor: Colors.white,
+                            backgroundColor: Color.fromARGB(
+                                255, 93, 255, 142), // Verde medio
+                            foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
                               vertical: 15,

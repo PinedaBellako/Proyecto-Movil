@@ -352,8 +352,9 @@ class _profesorState extends State<profesor> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00796B), // Verde medio
-                      foregroundColor: Colors.white,
+                      backgroundColor:
+                          Color.fromARGB(255, 93, 255, 142), // Verde medio
+                      foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40,
                         vertical: 15,
@@ -435,8 +436,9 @@ class _profesorState extends State<profesor> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00796B), // Verde medio
-                      foregroundColor: Colors.white,
+                      backgroundColor:
+                          Color.fromARGB(255, 93, 255, 142), // Verde medio
+                      foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40,
                         vertical: 15,
@@ -459,8 +461,9 @@ class _profesorState extends State<profesor> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00796B), // Verde medio
-                      foregroundColor: Colors.white,
+                      backgroundColor:
+                          Color.fromARGB(255, 93, 255, 142), // Verde medio
+                      foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40,
                         vertical: 15,

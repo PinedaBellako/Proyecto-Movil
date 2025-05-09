@@ -80,9 +80,13 @@ class _principalState extends State<principal> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF004D40), // Verde oscuro
-                  Color(0xFF000000), // Negro
+                  Color.fromARGB(255, 76, 163, 97), // Verde oscuro
+                  Color.fromARGB(255, 9, 15, 9), // Negro
                 ],
+                stops: [
+                  0.0,
+                  0.5
+                ], // Ajusta el punto de transición del degradado
               ),
             ),
           ),
@@ -203,9 +207,9 @@ class _principalState extends State<principal> {
                             style: GoogleFonts.poppins(fontSize: 16),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF00796B), // Verde medio
-                            foregroundColor: Colors.white,
+                            backgroundColor: Color.fromARGB(
+                                255, 93, 255, 142), // Verde medio
+                            foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
                               vertical: 15,
@@ -226,9 +230,9 @@ class _principalState extends State<principal> {
                             style: GoogleFonts.poppins(fontSize: 16),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF00796B), // Verde medio
-                            foregroundColor: Colors.white,
+                            backgroundColor: Color.fromARGB(
+                                255, 93, 255, 142), // Verde medio
+                            foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 30,
                               vertical: 15,
