@@ -25,8 +25,8 @@ class PerfilScreen extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF004D40), // Verde oscuro
-                  Color(0xFF000000), // Negro
+                  Color.fromARGB(255, 76, 163, 97), // Verde oscuro
+                  Color.fromARGB(255, 9, 15, 9), // Negro
                 ],
               ),
             ),
