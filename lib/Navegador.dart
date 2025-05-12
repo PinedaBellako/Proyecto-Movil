@@ -6,6 +6,7 @@ import 'package:proyecto/Pantallas/registrarse.dart';
 import 'package:proyecto/Pantallas/inicio.dart';
 import 'package:proyecto/Pantallas/perfil.dart';
 import 'package:proyecto/Pantallas/actividad.dart'; // Importa la pantalla de actividad
+import 'package:proyecto/Pantallas/Actprofesor.dart'; // Importa la pantalla de ActProfesorScreen
 
 class Navegador extends StatefulWidget {
   const Navegador({super.key});
@@ -47,7 +48,7 @@ class _NavegadorState extends State<Navegador> {
       rolUsuario: 'Profesor',
     ));
     _pantallas.add(const ActividadScreen()); // Agrega la pantalla de actividad
-
+    _pantallas.add(const ActProfesorScreen());
     _cuerpo = _pantallas[_p];
   }
 
@@ -99,6 +100,8 @@ class _NavegadorState extends State<Navegador> {
                 icon: Icon(
                   Icons.calendar_today,
                 )),
+            BottomNavigationBarItem(
+                label: "Act. Profesor", icon: Icon(Icons.assignment)),
           ]),
     );
   }
