@@ -5,8 +5,8 @@ import 'package:proyecto/Pantallas/profesor.dart';
 import 'package:proyecto/Pantallas/registrarse.dart';
 import 'package:proyecto/Pantallas/inicio.dart';
 import 'package:proyecto/Pantallas/perfil.dart';
-import 'package:proyecto/Pantallas/actividad.dart'; // Importa la pantalla de actividad
-import 'package:proyecto/Pantallas/Actprofesor.dart'; // Importa la pantalla de ActProfesorScreen
+import 'package:proyecto/Pantallas/Actprofesor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Navegador extends StatefulWidget {
   const Navegador({super.key});
@@ -17,7 +17,11 @@ class Navegador extends StatefulWidget {
 class _NavegadorState extends State<Navegador> {
   Widget? _cuerpo;
   final List<Widget> _pantallas = [];
+  final List<BottomNavigationBarItem> _items = [];
   int _p = 0;
+  String _nombreUsuario = 'Usuario'; // Valor por defecto
+  String _rolUsuario = 'Desconocido'; // Valor por defecto
+  bool _sesionIniciada = false; // Indica si el usuario ha iniciado sesión
 
   void _cambiaPantalla(int v) {
     setState(() {
@@ -26,83 +30,125 @@ class _NavegadorState extends State<Navegador> {
     });
   }
 
+  Future<void> _cargarDatosUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nombreUsuario = prefs.getString('nombreUsuario') ?? 'Usuario';
+      _rolUsuario = prefs.getString('rolUsuario') ?? 'Desconocido';
+    });
+
+    _configurarPantallas();
+  }
+
+  void _configurarPantallas() {
+    _pantallas.clear();
+    _items.clear();
+
+    if (_nombreUsuario == 'Usuario') {
+      // Pantalla login principal como índice 0
+      _pantallas.add(
+          principal(title: "Iniciar sesión", cambiarPantalla: _cambiaPantalla));
+      _items.add(const BottomNavigationBarItem(
+        label: "Home",
+        icon: Icon(Icons.home),
+      ));
+
+      // Pantalla de registro como índice 1
+      _pantallas.add(
+          registrarse(title: 'Registrarse', cambiarPantalla: _cambiaPantalla));
+      _items.add(const BottomNavigationBarItem(
+        label: "Registro",
+        icon: Icon(Icons.person_add),
+      ));
+    }
+
+    // Pantallas según rol
+    if (_rolUsuario == 'alumno') {
+      _pantallas.add(
+          alumno(title: 'Pase de Lista?', cambiarPantalla: _cambiaPantalla));
+      _items.add(const BottomNavigationBarItem(
+        label: "Clases",
+        icon: Icon(Icons.school),
+      ));
+
+      _pantallas.add(InicioScreen(
+        nombreUsuario: _nombreUsuario,
+        esProfesor: false,
+        cambiarPantalla: _cambiaPantalla,
+      ));
+      _items.add(const BottomNavigationBarItem(
+        label: "Lista",
+        icon: Icon(Icons.dashboard),
+      ));
+    } else if (_rolUsuario == 'profesor') {
+      _pantallas.add(
+          profesor(title: 'Pasar lista', cambiarPantalla: _cambiaPantalla));
+      _items.add(const BottomNavigationBarItem(
+        label: "Clases",
+        icon: Icon(Icons.person),
+      ));
+
+      _pantallas.add(const ActProfesorScreen());
+      _items.add(const BottomNavigationBarItem(
+        label: "Listas",
+        icon: Icon(Icons.assignment),
+      ));
+    }
+
+    if (_rolUsuario == 'alumno' || _rolUsuario == 'profesor') {
+      _pantallas.add(PerfilScreen(
+        nombreUsuario: _nombreUsuario,
+        rolUsuario: _rolUsuario,
+      ));
+      _items.add(const BottomNavigationBarItem(
+        label: "Perfil",
+        icon: Icon(Icons.account_circle),
+      ));
+    }
+
+    setState(() {
+      // Si el índice actual es mayor al nuevo total de pantallas, resetea a 0
+      if (_p >= _pantallas.length) _p = 0;
+      _cuerpo = _pantallas.isNotEmpty
+          ? _pantallas[_p]
+          : Center(child: Text("No hay pantallas"));
+    });
+  }
+
+  void _mostrarLoading() {
+    setState(() {
+      _cuerpo = const Center(child: CircularProgressIndicator());
+    });
+
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        _sesionIniciada = true;
+        _cargarDatosUsuario();
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _pantallas.add(
-        principal(title: "Iniciar sesion", cambiarPantalla: _cambiaPantalla));
-    _pantallas
-        .add(registrarse(title: 'LogIn', cambiarPantalla: _cambiaPantalla));
-    _pantallas
-        .add(alumno(title: 'Pase de Lista?', cambiarPantalla: _cambiaPantalla));
-    _pantallas
-        .add(profesor(title: 'Pasar lista', cambiarPantalla: _cambiaPantalla));
-    _pantallas.add(InicioScreen(
-      nombreUsuario: 'Alumno',
-      esProfesor: false,
-      cambiarPantalla: _cambiaPantalla,
-    ));
-    _pantallas.add(PerfilScreen(
-      nombreUsuario: 'KEVIN',
-      correoUsuario: 'kevin@example.com',
-      rolUsuario: 'Profesor',
-    ));
-    _pantallas.add(const ActividadScreen()); // Agrega la pantalla de actividad
-    _pantallas.add(const ActProfesorScreen());
-    _cuerpo = _pantallas[_p];
+    _cargarDatosUsuario();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _cuerpo,
-      bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _p,
-          onTap: (value) => _cambiaPantalla(value),
-          backgroundColor: const Color.fromARGB(255, 15, 20, 15), // Verde medio
-          selectedItemColor:
-              Color.fromARGB(255, 93, 255, 142), // Color del ítem seleccionado
-          unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                label: "Principal",
-                icon: Icon(
-                  Icons.home,
-                )),
-            BottomNavigationBarItem(
-                label: "Login",
-                icon: Icon(
-                  Icons.login,
-                )),
-            BottomNavigationBarItem(
-                label: "Alumno",
-                icon: Icon(
-                  Icons.school,
-                )),
-            BottomNavigationBarItem(
-                label: "Profesor",
-                icon: Icon(
-                  Icons.person,
-                )),
-            BottomNavigationBarItem(
-                label: "Inicio",
-                icon: Icon(
-                  Icons.dashboard,
-                )),
-            BottomNavigationBarItem(
-                label: "Perfil",
-                icon: Icon(
-                  Icons.account_circle,
-                )),
-            BottomNavigationBarItem(
-                label: "Actividad", // Nuevo ítem
-                icon: Icon(
-                  Icons.calendar_today,
-                )),
-            BottomNavigationBarItem(
-                label: "Act. Profesor", icon: Icon(Icons.assignment)),
-          ]),
+      bottomNavigationBar: (_nombreUsuario == "Usuario")
+          ? null
+          : BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: _p,
+              onTap: _cambiaPantalla,
+              backgroundColor: const Color.fromARGB(255, 15, 20, 15),
+              selectedItemColor: const Color.fromARGB(255, 93, 255, 142),
+              unselectedItemColor: Colors.white,
+              items: _items,
+            ),
     );
   }
 }

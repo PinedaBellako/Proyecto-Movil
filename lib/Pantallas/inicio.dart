@@ -1,127 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class InicioScreen extends StatelessWidget {
+/// Pantalla de inicio para alumnos.
+/// Muestra las materias inscritas, asistencias, retardos y permite unirse a una clase.
+class InicioScreen extends StatefulWidget {
   final String nombreUsuario;
   final bool esProfesor;
-  final Function cambiarPantalla; // Método para cambiar de pantalla
+  final Function cambiarPantalla;
 
   const InicioScreen({
     super.key,
     required this.nombreUsuario,
     required this.esProfesor,
-    required this.cambiarPantalla, // Recibe el método cambiarPantalla
+    required this.cambiarPantalla,
   });
 
-  void _mostrarFormularioUnirseClase(BuildContext context) {
-    final TextEditingController codigoClaseController = TextEditingController();
+  @override
+  State<InicioScreen> createState() => _InicioScreenState();
+}
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2C2C2C), // Fondo gris carbón
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        title: Text(
-          'Unirse a una Clase',
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            color: Colors.white, // Letras blancas
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: codigoClaseController,
-              style: GoogleFonts.poppins(color: Colors.white), // Texto blanco
-              decoration: InputDecoration(
-                labelText: 'Código de Clase',
-                labelStyle: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.white, // Letras blancas
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                filled: true,
-                fillColor: const Color(0xFF424242), // Fondo gris más claro
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Cerrar el formulario
-            },
-            child: Text(
-              'Cancelar',
-              style: GoogleFonts.poppins(color: Colors.white), // Letras blancas
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final String codigoClase = codigoClaseController.text.trim();
+class _InicioScreenState extends State<InicioScreen> {
+  // --- FORMATO Y ESTILOS ---
+  final Color colorFondoInicio = const Color.fromARGB(255, 76, 163, 97);
+  final Color colorFondoFin = const Color(0xFF000000);
+  final Color colorCard = Colors.white;
+  final Color colorCardTexto = Colors.black;
+  final Color colorTitulo = Colors.white;
+  final Color colorBoton = const Color.fromARGB(255, 93, 255, 142);
+  final Color colorBotonTexto = Colors.black;
+  final double tamanoTitulo = 20.0;
+  final double tamanoTexto = 16.0;
+  final double radioBorde = 12.0;
 
-              if (codigoClase.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Por favor, ingresa un código'),
-                  ),
-                );
-                return;
-              }
+  List<Map<String, dynamic>> materias = [];
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Te has unido a la clase: $codigoClase'),
-                ),
-              );
-
-              Navigator.pop(context); // Cerrar el formulario después de unirse
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00796B), // Verde medio
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Unirse'),
-          ),
-        ],
-      ),
-    );
-  }
-
+  // --- WIDGETS ---
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // Título de bienvenida con el nombre del usuario
         title: Text(
-          'Bienvenido, $nombreUsuario', // Mensaje de bienvenida dinámico
+          'Bienvenido, ${widget.nombreUsuario}',
           style: GoogleFonts.poppins(
-            fontSize: 20,
-            color: Colors.white, // Texto en blanco
+            fontSize: tamanoTitulo,
+            color: colorTitulo,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 19, 27, 19), // Verde medio
+        backgroundColor: const Color.fromARGB(255, 19, 27, 19),
       ),
       body: Stack(
         children: [
-          // Fondo degradado
+          // Fondo degradado verde a negro
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color.fromARGB(255, 76, 163, 97), // Verde oscuro
-                  Color.fromARGB(255, 9, 15, 9), // Negro
+                  colorFondoInicio,
+                  colorFondoFin,
                 ],
               ),
             ),
           ),
-          // Contenido principal
+          // Contenido principal desplazable
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -129,63 +74,32 @@ class InicioScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-
                   // Sección de Acciones Rápidas
                   Text(
                     'Acciones Rápidas',
                     style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      color: Colors.white, // Sin negritas
+                      fontSize: tamanoTitulo,
+                      color: colorTitulo,
                     ),
                   ),
                   const SizedBox(height: 10),
+                  // Botón para unirse a una clase
                   Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween, // Distribución uniforme
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Botón Registrar Asistencia
                       Flexible(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            cambiarPantalla(
-                                2); // Redirige a la pantalla de alumno
-                          },
-                          icon: const Icon(Icons.check_circle, size: 30),
-                          label: Text(
-                            'Registrar Asistencia',
-                            style: GoogleFonts.poppins(fontSize: 16),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF2C2C2C), // Gris carbón
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10), // Espaciado entre botones
-                      // Botón Unirme a una Clase
-                      Flexible(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            _mostrarFormularioUnirseClase(
-                                context); // Mostrar formulario
+                            _mostrarFormularioUnirseClase(context);
                           },
                           icon: const Icon(Icons.group_add, size: 30),
                           label: Text(
                             'Unirme a una Clase',
-                            style: GoogleFonts.poppins(fontSize: 16),
+                            style: GoogleFonts.poppins(fontSize: tamanoTexto),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF2C2C2C), // Gris carbón
-                            foregroundColor: Colors.white,
+                            backgroundColor: colorBoton,
+                            foregroundColor: colorBotonTexto,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 20,
                               vertical: 15,
@@ -199,51 +113,82 @@ class InicioScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-
-                  // Botón Crear QR (Solo para Profesores)
-                  if (esProfesor)
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Acción para generar QR
-                      },
-                      icon: const Icon(Icons.qr_code, size: 30),
-                      label: Text(
-                        'Crear QR',
-                        style: GoogleFonts.poppins(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2C2C2C), // Gris carbón
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 15,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 30),
-
-                  // Calendario de Asistencia
+                  // Tabla de materias, asistencias y retardos con estilo personalizado
                   Container(
-                    padding: const EdgeInsets.all(10.0),
+                    margin: const EdgeInsets.symmetric(vertical: 16.0),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2C2C2C), // Gris carbón
-                      borderRadius: BorderRadius.circular(10),
+                      color: colorCard,
+                      borderRadius: BorderRadius.circular(radioBorde),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Calendario de Asistencia',
-                          style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            color: Colors.white, // Sin negritas
-                          ),
+                        // Encabezado de la tabla
+                        Row(
+                          children: const [
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                'Materia',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                'Asistencias',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                'Retardos',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        CalendarWidget(),
+                        const Divider(),
+                        // Filas dinámicas con la información de cada materia
+                        ...materias.map((materia) => Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child:
+                                          Text(materia['materia'].toString()),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        materia['asistencias'].toString(),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        materia['retardos'].toString(),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Divider(),
+                              ],
+                            )),
                       ],
                     ),
                   ),
@@ -255,48 +200,217 @@ class InicioScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class CalendarWidget extends StatefulWidget {
+  // --- FUNCIONES Y LÓGICA ---
   @override
-  _CalendarWidgetState createState() => _CalendarWidgetState();
-}
+  void initState() {
+    super.initState();
+    cargarMaterias();
+  }
 
-class _CalendarWidgetState extends State<CalendarWidget> {
-  final Map<String, bool> attendance = {
-    'Lun': true,
-    'Mar': false,
-    'Mié': true,
-    'Jue': false,
-    'Vie': true,
-  };
+  /// Carga las materias del usuario desde Firestore y actualiza la lista.
+  /// También obtiene las asistencias y retardos de cada materia.
+  Future<void> cargarMaterias() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String usuario = prefs.getString('usuario') ?? 'AlumnoDesconocido';
+    final String nombreUsuario = prefs.getString('nombreUsuario') ?? usuario;
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: attendance.keys.map((day) {
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              attendance[day] = !(attendance[day] ?? false);
-            });
-          },
-          child: Column(
-            children: [
-              Text(
-                day,
-                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-              ),
-              const SizedBox(height: 5),
-              Icon(
-                attendance[day]! ? Icons.check_circle : Icons.cancel,
-                color: attendance[day]! ? Colors.green : Colors.red,
-              ),
-            ],
+    // Consulta todas las materias del usuario
+    final snapshot = await FirebaseFirestore.instance
+        .collection('Proyecto')
+        .doc('Usuarios')
+        .collection(usuario)
+        .get();
+
+    List<Map<String, dynamic>> materiasTemp = [];
+
+    for (var doc in snapshot.docs) {
+      if (doc.id.trim().toLowerCase() == 'datos')
+        continue; // Ignora documento de datos generales
+      final data = doc.data();
+      final profesor = data['profesor'] ?? '';
+      final codigo = data['codigo'] ?? '';
+      final nombreMateria = doc.id;
+
+      // Busca asistencias y retardos en la colección de la clase
+      final alumnoDoc = await FirebaseFirestore.instance
+          .collection('Proyecto')
+          .doc(profesor)
+          .collection('clases')
+          .doc(codigo)
+          .collection('alumnos')
+          .doc(nombreUsuario)
+          .get();
+
+      final asistencias = alumnoDoc.data()?['asistencias'] ?? 0;
+      final retardos = alumnoDoc.data()?['retardos'] ?? 0;
+
+      materiasTemp.add({
+        'materia': nombreMateria,
+        'asistencias': asistencias,
+        'retardos': retardos,
+      });
+    }
+
+    setState(() {
+      materias = materiasTemp;
+    });
+  }
+
+  /// Muestra el formulario para unirse a una clase.
+  /// El usuario debe ingresar el nombre del profesor y el código de la clase.
+  void _mostrarFormularioUnirseClase(BuildContext context) {
+    final TextEditingController codigoClaseController = TextEditingController();
+    final TextEditingController nombreProfesorController =
+        TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2C2C2C),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Text(
+          'Unirse a una Clase',
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            color: Colors.white,
           ),
-        );
-      }).toList(),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Campo para el nombre del profesor
+            TextField(
+              controller: nombreProfesorController,
+              style: GoogleFonts.poppins(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Nombre del Profesor',
+                labelStyle: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                filled: true,
+                fillColor: const Color(0xFF424242),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Campo para el código de la clase
+            TextField(
+              controller: codigoClaseController,
+              style: GoogleFonts.poppins(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Código de Clase',
+                labelStyle: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                filled: true,
+                fillColor: const Color(0xFF424242),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          // Botón para cancelar el formulario
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+          ),
+          // Botón para unirse a la clase
+          ElevatedButton(
+            onPressed: () async {
+              final String nombreProfesor =
+                  nombreProfesorController.text.trim();
+              final String codigoClase =
+                  codigoClaseController.text.trim().toUpperCase();
+
+              try {
+                // Verifica si la clase existe en Firestore
+                final claseSnapshot = await FirebaseFirestore.instance
+                    .collection('Proyecto')
+                    .doc(nombreProfesor)
+                    .collection('clases')
+                    .doc(codigoClase)
+                    .get();
+
+                if (!claseSnapshot.exists) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text(
+                            'No existe una clase con ese código y profesor.')),
+                  );
+                  return;
+                }
+
+                final String nombreClase =
+                    claseSnapshot.data()?['nombreClase'] ?? 'Clase desconocida';
+
+                final prefs = await SharedPreferences.getInstance();
+                final String usuario =
+                    prefs.getString('usuario') ?? 'AlumnoDesconocido';
+                final String nombreAlumno =
+                    prefs.getString('nombreUsuario') ?? usuario;
+
+                // Guarda la materia en la colección del usuario
+                await FirebaseFirestore.instance
+                    .collection('Proyecto')
+                    .doc('Usuarios')
+                    .collection(usuario)
+                    .doc(nombreClase)
+                    .set({
+                  'profesor': nombreProfesor,
+                  'codigo': codigoClase,
+                });
+
+                // Agrega al alumno en la lista de alumnos de la clase
+                await FirebaseFirestore.instance
+                    .collection('Proyecto')
+                    .doc(nombreProfesor)
+                    .collection('clases')
+                    .doc(codigoClase)
+                    .collection('alumnos')
+                    .doc(nombreAlumno)
+                    .set({
+                  'usuario': usuario,
+                  'asistencias': 0,
+                  'retardos': 0,
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Te has inscrito a la clase "$nombreClase".'),
+                  ),
+                );
+
+                Navigator.pop(context);
+                cargarMaterias();
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error al unirse a la clase: $e')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorBoton,
+              foregroundColor: colorBotonTexto,
+            ),
+            child: const Text('Unirse'),
+          ),
+        ],
+      ),
     );
   }
 }

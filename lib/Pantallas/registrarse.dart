@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Pantalla de registro de usuario.
+/// Permite crear una cuenta nueva como alumno o profesor.
 class registrarse extends StatefulWidget {
-  const registrarse(
-      {super.key, required this.title, required this.cambiarPantalla});
+  const registrarse({
+    super.key,
+    required this.title,
+    required this.cambiarPantalla,
+  });
 
   final Function cambiarPantalla;
   final String title;
@@ -14,80 +19,22 @@ class registrarse extends StatefulWidget {
 }
 
 class _registrarseState extends State<registrarse> {
+  // Controla si el usuario es alumno o profesor
   bool _eresAlumno = true;
 
+  // Controladores para los campos de texto
   final TextEditingController usuarioController = TextEditingController();
   final TextEditingController contrasenaController = TextEditingController();
   final TextEditingController repetirController = TextEditingController();
-
-  void preguntaAlumnos(bool? value) {
-    setState(() {
-      _eresAlumno = value ?? true;
-    });
-  }
-
-  void cargarALaBD() async {
-    String usuario = usuarioController.text.trim();
-    String contrasena = contrasenaController.text.trim();
-    String repetir = repetirController.text.trim();
-
-    if (usuario.isEmpty || contrasena.isEmpty || repetir.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor llena todos los campos')),
-      );
-      return;
-    }
-
-    if (contrasena != repetir) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las contraseñas no coinciden')),
-      );
-      return;
-    }
-
-    try {
-      final datosRef = FirebaseFirestore.instance
-          .collection('Proyecto')
-          .doc('Usuarios')
-          .collection(usuario)
-          .doc('Datos');
-
-      final snapshot = await datosRef.get();
-
-      if (snapshot.exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('El usuario ya existe')),
-        );
-        return;
-      }
-
-      await datosRef.set({
-        'usuario': usuario,
-        'contraseña': contrasena,
-        'tipo': _eresAlumno ? 'alumno' : 'profesor',
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cuenta creada correctamente')),
-      );
-
-      widget.cambiarPantalla(0);
-    } catch (e) {
-      final mensaje = e.toString();
-      print("🔥 ERROR AL REGISTRAR: $mensaje");
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al registrar: $mensaje')),
-      );
-    }
-  }
+  final TextEditingController nombreController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    // --- DISEÑO Y WIDGETS ---
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo degradado
+          // Fondo degradado verde a negro
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -100,7 +47,7 @@ class _registrarseState extends State<registrarse> {
               ),
             ),
           ),
-          // Contenido principal
+          // Contenido principal centrado
           Center(
             child: SingleChildScrollView(
               child: Padding(
@@ -109,7 +56,7 @@ class _registrarseState extends State<registrarse> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    // Título
+                    // Título de la pantalla
                     Text(
                       'Crear Cuenta',
                       style: GoogleFonts.poppins(
@@ -118,6 +65,7 @@ class _registrarseState extends State<registrarse> {
                       ),
                     ),
                     const SizedBox(height: 40),
+
                     // Campo de usuario
                     Text(
                       'Ingresa tu usuario:',
@@ -127,40 +75,12 @@ class _registrarseState extends State<registrarse> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: usuarioController,
-                        decoration: InputDecoration(
-                          hintText: 'Usuario',
-                          hintStyle: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                        ),
-                      ),
+                    _campoTexto(
+                      controller: usuarioController,
+                      hint: 'Usuario',
                     ),
                     const SizedBox(height: 20),
+
                     // Campo de contraseña
                     Text(
                       'Ingresa tu contraseña:',
@@ -170,42 +90,14 @@ class _registrarseState extends State<registrarse> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: contrasenaController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'Contraseña',
-                          hintStyle: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                        ),
-                      ),
+                    _campoTexto(
+                      controller: contrasenaController,
+                      hint: 'Contraseña',
+                      esContrasena: true,
                     ),
                     const SizedBox(height: 20),
-                    // Campo de repetir contraseña
+
+                    // Campo para repetir contraseña
                     Text(
                       'Repite tu contraseña:',
                       style: GoogleFonts.poppins(
@@ -214,41 +106,14 @@ class _registrarseState extends State<registrarse> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: repetirController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'Repite tu contraseña',
-                          hintStyle: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                        ),
-                      ),
+                    _campoTexto(
+                      controller: repetirController,
+                      hint: 'Repite tu contraseña',
+                      esContrasena: true,
                     ),
                     const SizedBox(height: 20),
+
+                    // Campo de nombre completo
                     Text(
                       'Ingresa tu nombre:',
                       style: GoogleFonts.poppins(
@@ -257,49 +122,20 @@ class _registrarseState extends State<registrarse> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: repetirController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'Nombre completo',
-                          hintStyle: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
-                        ),
-                      ),
+                    _campoTexto(
+                      controller: nombreController,
+                      hint: 'Nombre completo',
                     ),
                     const SizedBox(height: 20),
-                    // Checkbox
+
+                    // Checkbox para seleccionar si es alumno
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Checkbox(
                           value: _eresAlumno,
                           onChanged: preguntaAlumnos,
-                          activeColor: Color.fromARGB(255, 93, 255, 142),
+                          activeColor: const Color.fromARGB(255, 93, 255, 142),
                         ),
                         Text(
                           '¿Eres alumno?',
@@ -311,45 +147,46 @@ class _registrarseState extends State<registrarse> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // Botones
+
+                    // Botones de crear cuenta y regresar
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton.icon(
                           onPressed: cargarALaBD,
-                          icon: const Icon(Icons.person_add),
+                          icon: const Icon(Icons.person_add, size: 20),
                           label: Text(
                             'Crear cuenta',
-                            style: GoogleFonts.poppins(fontSize: 16),
+                            style: GoogleFonts.poppins(fontSize: 13),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(
-                                255, 93, 255, 142), // Verde medio
+                            backgroundColor:
+                                const Color.fromARGB(255, 93, 255, 142),
                             foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 15,
+                              horizontal: 16,
+                              vertical: 10,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        const SizedBox(width: 12),
                         ElevatedButton.icon(
                           onPressed: () => widget.cambiarPantalla(0),
-                          icon: const Icon(Icons.arrow_back),
+                          icon: const Icon(Icons.arrow_back, size: 20),
                           label: Text(
                             'Regresar',
-                            style: GoogleFonts.poppins(fontSize: 16),
+                            style: GoogleFonts.poppins(fontSize: 13),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(
-                                255, 93, 255, 142), // Verde medio
+                            backgroundColor:
+                                const Color.fromARGB(255, 93, 255, 142),
                             foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 15,
+                              horizontal: 16,
+                              vertical: 10,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
@@ -364,6 +201,126 @@ class _registrarseState extends State<registrarse> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // --- FUNCIONALIDAD ---
+
+  /// Actualiza el estado del checkbox para saber si el usuario es alumno.
+  void preguntaAlumnos(bool? value) {
+    setState(() {
+      _eresAlumno = value ?? true;
+    });
+  }
+
+  /// Intenta registrar al usuario en Firestore.
+  /// Valida los campos, verifica que el usuario no exista y guarda los datos.
+  void cargarALaBD() async {
+    String usuario = usuarioController.text.trim();
+    String contrasena = contrasenaController.text.trim();
+    String repetir = repetirController.text.trim();
+    String nombre = nombreController.text.trim();
+
+    // Validación de campos vacíos
+    if (usuario.isEmpty ||
+        contrasena.isEmpty ||
+        repetir.isEmpty ||
+        nombre.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor llena todos los campos')),
+      );
+      return;
+    }
+
+    // Validación de contraseñas iguales
+    if (contrasena != repetir) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
+      return;
+    }
+
+    try {
+      // Referencia al documento de datos del usuario
+      final datosRef = FirebaseFirestore.instance
+          .collection('Proyecto')
+          .doc('Usuarios')
+          .collection(usuario)
+          .doc('Datos');
+
+      // Verifica si el usuario ya existe
+      final snapshot = await datosRef.get();
+
+      if (snapshot.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El usuario ya existe')),
+        );
+        return;
+      }
+
+      // Guarda los datos del usuario en Firestore
+      await datosRef.set({
+        'usuario': usuario,
+        'contraseña': contrasena,
+        'nombre': nombre,
+        'tipo': _eresAlumno ? 'alumno' : 'profesor',
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cuenta creada correctamente')),
+      );
+
+      // Regresa a la pantalla principal de login
+      widget.cambiarPantalla(0);
+    } catch (e) {
+      final mensaje = e.toString();
+      print(" ERROR AL REGISTRAR: $mensaje");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al registrar: $mensaje')),
+      );
+    }
+  }
+
+  /// Widget reutilizable para los campos de texto del formulario.
+  Widget _campoTexto({
+    required TextEditingController controller,
+    required String hint,
+    bool esContrasena = false,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: esContrasena,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: GoogleFonts.poppins(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
+          ),
+        ),
       ),
     );
   }
